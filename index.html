@@ -145,6 +145,12 @@
         ball2.x += moveX;
         ball2.y += moveY;
 
+        const collisionDamping = 0.9;
+        ball1.velocityX *= collisionDamping;
+        ball1.velocityY *= collisionDamping;
+        ball2.velocityX *= collisionDamping;
+        ball2.velocityY *= collisionDamping;
+
         if (dy > 0) {
           ball1.velocityY -= 0.1;
         } else {
@@ -187,10 +193,10 @@
         ball.velocityX *= -ball.damping;
       }
   
-      if (Math.abs(ball.velocityY) < 0.5 && ball.y + ball.radius >= canvas.height) {
+      if (Math.abs(ball.velocityY) < 0.1 && ball.y + ball.radius >= canvas.height) {
         ball.velocityY = 0;
       }
-      if (Math.abs(ball.velocityX) < 0.5) {
+      if (Math.abs(ball.velocityX) < 0.1) {
         ball.velocityX = 0;
       }
     }
