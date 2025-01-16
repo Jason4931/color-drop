@@ -10,7 +10,7 @@
     <canvas id="canvas" width="500" height="600" style="border-bottom: 3px solid white; border-left: 3px solid white; border-right: 3px solid white;"></canvas>
   </div>
   <p id="points" style="text-align: end; color: white; user-select: none;">Points: 0</p>
-  <p id="instructions" style="transition: opacity 0.5s ease-in-out; position: absolute; top: 0px; right: -60%; color: white; user-select: none;">
+  <p id="instructions" style="transition: opacity 0.5s ease-in-out; position: absolute; top: 0px; right: -60%; color: white; user-select: none; width: 290px">
     How to play:<br>
     Pick 2 balls of the same color to destroy them<br>
     Dont let it filled up<br><br>
@@ -32,7 +32,7 @@
         canvas.width = window.innerWidth * 0.4;
         canvas.height = window.innerHeight * 0.6;
         document.getElementById("canvasbg").style.height = canvas.height + "px";
-        document.getElementById("instructions").style.right = "3%";
+        document.getElementById("instructions").style.right = "1%";
         instructionsTimer = setTimeout(() => {
           document.getElementById("instructions").style.opacity = "0";
         }, 10000)
