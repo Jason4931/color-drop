@@ -187,10 +187,10 @@
         ball.velocityX *= -ball.damping;
       }
   
-      if (Math.abs(ball.velocityY) < 0.1 && ball.y + ball.radius >= canvas.height) {
+      if (Math.abs(ball.velocityY) < 0.5 && ball.y + ball.radius >= canvas.height) {
         ball.velocityY = 0;
       }
-      if (Math.abs(ball.velocityX) < 0.1) {
+      if (Math.abs(ball.velocityX) < 0.5) {
         ball.velocityX = 0;
       }
     }
