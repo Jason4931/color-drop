@@ -19,6 +19,7 @@
   <script>
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
+    var cheat = false;
 
     var points = 0;
     var firstClickedBall = null;
@@ -74,18 +75,34 @@
         if (firstClickedBall === null) {
           firstClickedBall = clickedBall;
         } else {
-          if (firstClickedBall !== clickedBall && colorsMatch(firstClickedBall.color, clickedBall.color)) {
-            const firstIndex = balls.indexOf(firstClickedBall);
-            const secondIndex = closestBallIndex;
-            if (firstIndex < secondIndex) {
-              balls.splice(secondIndex, 1);
-              balls.splice(firstIndex, 1);
-            } else {
-              balls.splice(firstIndex, 1);
-              balls.splice(secondIndex, 1);
+          if (!cheat) {
+            if (firstClickedBall !== clickedBall && colorsMatch(firstClickedBall.color, clickedBall.color)) {
+              const firstIndex = balls.indexOf(firstClickedBall);
+              const secondIndex = closestBallIndex;
+              if (firstIndex < secondIndex) {
+                balls.splice(secondIndex, 1);
+                balls.splice(firstIndex, 1);
+              } else {
+                balls.splice(firstIndex, 1);
+                balls.splice(secondIndex, 1);
+              }
+              points++;
+              document.getElementById("points").textContent = "Points: " + points;
             }
-            points++;
-            document.getElementById("points").textContent = "Points: " + points;
+          } else {
+            if (firstClickedBall !== clickedBall) {
+              const firstIndex = balls.indexOf(firstClickedBall);
+              const secondIndex = closestBallIndex;
+              if (firstIndex < secondIndex) {
+                balls.splice(secondIndex, 1);
+                balls.splice(firstIndex, 1);
+              } else {
+                balls.splice(firstIndex, 1);
+                balls.splice(secondIndex, 1);
+              }
+              points++;
+              document.getElementById("points").textContent = "Points: " + points;
+            }
           }
           firstClickedBall = null;
         }
