@@ -252,7 +252,7 @@
     }
   
     let spawnInterval = 3000;
-    const minInterval = 1000;
+    let minInterval = 1000;
     let spawnTimer;
 
     function startSpawning() {
@@ -266,6 +266,10 @@
       }, spawnInterval);
     }
     startSpawning();
+
+    setTimeout(() => {
+      minInterval = 500;
+    }, 601000)
   
     draw();
   </script>
