@@ -260,7 +260,7 @@
         if (!gameOver) {
           balls.push(createBall(`rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`));
         }
-        spawnInterval = Math.max(spawnInterval - 100, minInterval);
+        spawnInterval = Math.max(spawnInterval - 10, minInterval);
         clearInterval(spawnTimer);
         startSpawning();
       }, spawnInterval);
