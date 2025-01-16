@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Drop</title>
+</head>
+<body style="background-color: black; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow: hidden;">
+  <canvas id="canvas" width="500" height="600" style="border-bottom: 1px solid white; border-left: 1px solid white; border-right: 1px solid white;"></canvas>
+  <p id="points" style="text-align: end; color: white; user-select: none;">Points: 0</p>
+  <p style="position: absolute; top: 0px; right: -60%; color: white; user-select: none;">
+    How to play:<br>
+    Pick 2 balls of the same color to destroy them<br>
+    Dont let it filled up<br><br>
+    Goodluck
+  </p>
+  <script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    var points = 0;
+    var firstClickedBall = null;
+    var gameOver = false;
+    var gameOverTimer = null;
+  
+    canvas.addEventListener("click", (event) => {
+      if (gameOver) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      let closestBallIndex = -1;
+      let minDistance = Infinity;
+
+      for (let i = 0; i < balls.length; i++) {
+        const ball = balls[i];
+        const distance = Math.sqrt((mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2);
+
+        if (distance <= ball.radius * 1.5 && distance < minDistance) {
+          minDistance = distance;
+          closestBallIndex = i;
+        }
+      }
+
+      if (closestBallIndex !== -1) {
+        const clickedBall = balls[closestBallIndex];
+        
+        if (firstClickedBall === null) {
+          firstClickedBall = clickedBall;
+        } else {
+          if (firstClickedBall !== clickedBall && colorsMatch(firstClickedBall.color, clickedBall.color)) {
+            const firstIndex = balls.indexOf(firstClickedBall);
+            const secondIndex = closestBallIndex;
+            if (firstIndex < secondIndex) {
+              balls.splice(secondIndex, 1);
+              balls.splice(firstIndex, 1);
+            } else {
+              balls.splice(firstIndex, 1);
+              balls.splice(secondIndex, 1);
+            }
+            points++;
+            document.getElementById("points").textContent = "Points: " + points;
+          }
+          firstClickedBall = null;
+        }
+      }
+    });
+
+    function colorsMatch(color1, color2) {
+      const [r1, g1, b1] = color1.match(/\d+/g).map(Number);
+      const [r2, g2, b2] = color2.match(/\d+/g).map(Number);
+      
+      const threshold = 100;
+      const distance = Math.sqrt((r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2);
+      
+      return distance < threshold;
+    }
+  
+    var balls = [];
+  
+    function createBall(color) {
+      var radius = Math.random() * 20 + 20;
+      return {
+        x: Math.random() * (canvas.width - 2 * radius) + radius,
+        y: -30,
+        radius: radius,
+        velocityX: 0,
+        velocityY: 0,
+        gravity: 0.1,
+        damping: 0.5,
+        color: color
+      };
+    }
+  
+    function resolveCollision(ball1, ball2) {
+      const dx = ball2.x - ball1.x;
+      const dy = ball2.y - ball1.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+  
+      if (distance < ball1.radius + ball2.radius) {
+        const angle = Math.atan2(dy, dx);
+        const speed1 = (ball1.velocityX * dx + ball1.velocityY * dy) / distance;
+        const speed2 = (ball2.velocityX * dx + ball2.velocityY * dy) / distance;
+  
+        const newSpeed1 = speed2;
+        const newSpeed2 = speed1;
+  
+        ball1.velocityX += (newSpeed1 - speed1) * (dx / distance);
+        ball1.velocityY += (newSpeed1 - speed1) * (dy / distance);
+        ball2.velocityX += (newSpeed2 - speed2) * (dx / distance);
+        ball2.velocityY += (newSpeed2 - speed2) * (dy / distance);
+  
+        const overlap = ball1.radius + ball2.radius - distance;
+        const moveX = (dx / distance) * overlap / 2;
+        const moveY = (dy / distance) * overlap / 2;
+  
+        ball1.x -= moveX;
+        ball1.y -= moveY;
+        ball2.x += moveX;
+        ball2.y += moveY;
+      }
+    }
+  
+    function drawBall(ball) {
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 0.1;
+      ctx.stroke();
+      ctx.fillStyle = ball.color;
+      ctx.fill();
+      if (ball === firstClickedBall) {
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = darkenColor(ball.color);
+        ctx.stroke();
+      }
+      ctx.closePath();
+  
+      ball.velocityY += ball.gravity;
+      ball.y += ball.velocityY;
+      ball.x += ball.velocityX;
+  
+      if (ball.y + ball.radius >= canvas.height) {
+        ball.y = canvas.height - ball.radius;
+        ball.velocityY *= -ball.damping;
+      }
+  
+      if (ball.x - ball.radius <= 0) {
+        ball.x = ball.radius;
+        ball.velocityX *= -ball.damping;
+      }
+  
+      if (ball.x + ball.radius >= canvas.width) {
+        ball.x = canvas.width - ball.radius;
+        ball.velocityX *= -ball.damping;
+      }
+  
+      if (Math.abs(ball.velocityY) < 0.1 && ball.y + ball.radius >= canvas.height) {
+        ball.velocityY = 0;
+      }
+    }
+  
+    function darkenColor(color) {
+      const [r, g, b] = color.match(/\d+/g).map(Number);
+      const darkenFactor = 0.3;
+      return `rgb(${Math.max(0, r - r * darkenFactor)}, ${Math.max(0, g - g * darkenFactor)}, ${Math.max(0, b - b * darkenFactor)})`;
+    }
+
+    function checkGameOver() {
+      const ballsAboveCanvas = balls.filter(ball => ball.y < 0);
+      if (ballsAboveCanvas.length > 0) {
+        if (!gameOverTimer) {
+          gameOverTimer = setTimeout(() => {
+            const ballsAboveCanvas = balls.filter(ball => ball.y < 0);
+            if (ballsAboveCanvas.length > 0) {
+              gameOver = true;
+              displayGameOver();
+            }
+          }, 3000);
+        }
+      } else {
+        clearTimeout(gameOverTimer);
+        gameOverTimer = null;
+      }
+    }
+
+    function displayGameOver() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.font = "30px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 20);
+      ctx.fillText("Points: " + points, canvas.width / 2, canvas.height / 2 + 20);
+    }
+    
+    function draw() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+          resolveCollision(balls[i], balls[j]);
+        }
+      }
+
+      balls.forEach(drawBall);
+      checkGameOver();
+      requestAnimationFrame(draw);
+    }
+  
+    let spawnInterval = 3000;
+    const minInterval = 500;
+    let spawnTimer;
+
+    function startSpawning() {
+      spawnTimer = setInterval(() => {
+        if (!gameOver) {
+          balls.push(createBall(`rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`));
+        }
+        spawnInterval = Math.max(spawnInterval - 100, minInterval);
+        clearInterval(spawnTimer);
+        startSpawning();
+      }, spawnInterval);
+    }
+    startSpawning();
+  
+    draw();
+  </script>
+</body>
+</html>
