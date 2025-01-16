@@ -137,8 +137,8 @@
         ball2.velocityY += (newSpeed2 - speed2) * (dy / distance);
   
         const overlap = ball1.radius + ball2.radius - distance;
-        const moveX = (dx / distance) * overlap / 1.9;
-        const moveY = (dy / distance) * overlap / 1.9;
+        const moveX = (dx / distance) * overlap / 2;
+        const moveY = (dy / distance) * overlap / 2;
   
         ball1.x -= moveX;
         ball1.y -= moveY;
@@ -187,17 +187,17 @@
         ball.velocityX *= -ball.damping;
       }
   
-      if (Math.abs(ball.velocityY) < 0.5 && ball.y + ball.radius >= canvas.height) {
+      if (Math.abs(ball.velocityY) < 0.1 && ball.y + ball.radius >= canvas.height) {
         ball.velocityY = 0;
       }
-      if (Math.abs(ball.velocityX) < 0.5) {
+      if (Math.abs(ball.velocityX) < 0.1) {
         ball.velocityX = 0;
       }
 
-      if (ball.velocityY < 0.5 && ball.velocityX < 0.5) {
-        gravity = 0;
+      if (ball.velocityY < 0.1 && ball.velocityX < 0.1) {
+        ball.gravity = 0;
       } else {
-        gravity = 0.1;
+        ball.gravity = 0.1;
       }
     }
   
