@@ -4,32 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Color Drop</title>
-  <style>
-    body {
-      background: black;
-    }
-    .line {
-      position: absolute;
-      z-index: -1;
-      left: -150%;
-      width: 350%;
-      height: 600px;
-      background: linear-gradient(to bottom, black, #101010, black);
-      animation: moveLine 3s linear infinite;
-    }
-    @keyframes moveLine {
-      0% {
-        top: -100vh;
-      }
-      100% {
-        top: 100vh;
-      }
-    }
-  </style>
 </head>
-<body style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow: hidden;">
-  <div class="line"></div>
-  <canvas id="canvas" width="500" height="600" style="border-bottom: 3px solid white; border-left: 3px solid white; border-right: 3px solid white;"></canvas>
+<body style="background-color: black; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow: hidden;">
+  <div id="canvasbg" style="background: linear-gradient(to bottom, black, #101010); height: 600px;">
+    <canvas id="canvas" width="500" height="600" style="border-bottom: 3px solid white; border-left: 3px solid white; border-right: 3px solid white;"></canvas>
+  </div>
   <p id="points" style="text-align: end; color: white; user-select: none;">Points: 0</p>
   <p id="instructions" style="transition: opacity 0.5s ease-in-out; position: absolute; top: 0px; right: -60%; color: white; user-select: none;">
     How to play:<br>
@@ -52,6 +31,7 @@
       if (isMobile) {
         canvas.width = window.innerWidth * 0.4;
         canvas.height = window.innerHeight * 0.6;
+        document.getElementById("canvasbg").style.height = canvas.height + "px";
         document.getElementById("instructions").style.right = "4%";
         instructionsTimer = setTimeout(() => {
           document.getElementById("instructions").style.opacity = "0";
@@ -59,6 +39,7 @@
       } else {
         canvas.width = 500;
         canvas.height = 600;
+        document.getElementById("canvasbg").style.height = canvas.height + "px";
         document.getElementById("instructions").style.right = "-60%";
         document.getElementById("instructions").style.opacity = "1";
         clearTimeout(instructionsTimer);
