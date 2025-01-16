@@ -193,12 +193,6 @@
       if (Math.abs(ball.velocityX) < 0.1) {
         ball.velocityX = 0;
       }
-
-      if (ball.velocityY < 0.1 && ball.velocityX < 0.1) {
-        ball.gravity = 0;
-      } else {
-        ball.gravity = 0.1;
-      }
     }
   
     function darkenColor(color) {
