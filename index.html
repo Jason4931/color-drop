@@ -271,7 +271,7 @@
         const distanceB = Math.abs(b2 - b1);
         
         wrongStreak++;
-        if(wrongStreak == 3) {
+        if(wrongStreak == 5) {
           wrongStreak = 0;
           fastSpawn = true;
           clearInterval(spawnTimer);
@@ -391,8 +391,24 @@
           ctx.strokeStyle = "red";
           ctx.stroke();
           setTimeout(() => {
-            secondClickedBall = null;
-          }, 1000);
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            setTimeout(() => {
+              ctx.lineWidth = 3;
+              ctx.stroke();
+              setTimeout(() => {
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                setTimeout(() => {
+                  ctx.lineWidth = 1;
+                  ctx.stroke();
+                  setTimeout(() => {
+                    secondClickedBall = null;
+                  }, 200);
+                }, 200);
+              }, 200);
+            }, 200);
+          }, 200);
         }
         ctx.closePath();
 
