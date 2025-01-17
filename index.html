@@ -522,7 +522,7 @@
         }
 
         balls.forEach(drawBall);
-        if (secondClickedBall.ball) {
+        if (secondClickedBall && secondClickedBall.ball) {
           const { ball, frame, maxFrames } = secondClickedBall;
           const progress = frame / maxFrames;
 
