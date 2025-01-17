@@ -387,28 +387,28 @@
           ctx.stroke();
         }
         if (ball === secondClickedBall) {
-          ctx.lineWidth = 5;
-          ctx.strokeStyle = "red";
-          ctx.stroke();
-          setTimeout(() => {
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            setTimeout(() => {
-              ctx.lineWidth = 3;
+          const borderSteps = 5;
+          const initialWidth = 5;
+          const stepDuration = 200;
+
+          let step = 0;
+
+          function animateBorder() {
+            if (step < borderSteps) {
+              ctx.lineWidth = initialWidth - step;
+              ctx.strokeStyle = "red";
               ctx.stroke();
-              setTimeout(() => {
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                setTimeout(() => {
-                  ctx.lineWidth = 1;
-                  ctx.stroke();
-                  setTimeout(() => {
-                    secondClickedBall = null;
-                  }, 200);
-                }, 200);
-              }, 200);
-            }, 200);
-          }, 200);
+              step++;
+              setTimeout(animateBorder, stepDuration);
+            } else {
+              secondClickedBall = null;
+            }
+          }
+
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = initialWidth;
+          ctx.stroke();
+          animateBorder();
         }
         ctx.closePath();
 
