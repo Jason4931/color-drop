@@ -81,6 +81,7 @@
 
       var points = 0;
       var firstClickedBall = null;
+      var secondClickedBall = null;
       var gameOver = false;
       var gameOverTimer = null;
       var instructionsTimer = null;
@@ -140,6 +141,7 @@
           if (firstClickedBall === null) {
             firstClickedBall = clickedBall;
           } else {
+            secondClickedBall = clickedBall;
             if (!cheat) {
               if (
                 (firstClickedBall !== clickedBall) &
@@ -363,6 +365,14 @@
           ctx.lineWidth = 5;
           ctx.strokeStyle = darkenColor(ball.color);
           ctx.stroke();
+        }
+        if (ball === secondClickedBall) {
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = "red";
+          ctx.stroke();
+          setTimeout(() => {
+            secondClickedBall = null;
+          }, 1000);
         }
         ctx.closePath();
 
