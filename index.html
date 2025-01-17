@@ -102,12 +102,14 @@
           document.getElementById("instructions").style.right = "1%";
           instructionsTimer = setTimeout(() => {
             document.getElementById("instructions").style.opacity = "0";
+            setTimeout(() => {
+              document.getElementById("instructions").style.right = "-60%";
+            })
           }, 10000);
         } else {
           canvas.width = 500;
           canvas.height = 600;
-          document.getElementById("canvasbg").style.height =
-            canvas.height + "px";
+          document.getElementById("canvasbg").style.height = canvas.height + "px";
           document.getElementById("instructions").style.right = "-60%";
           document.getElementById("instructions").style.opacity = "1";
           clearTimeout(instructionsTimer);
@@ -290,7 +292,7 @@
               disableFastSpawn = false;
             }, 5000);
           }
-        }, 100);
+        }, 10);
         
         return (
           (distanceR <= threshold && distanceG <= threshold && distanceB <= threshold) ||
