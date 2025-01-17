@@ -16,6 +16,9 @@
     Dont let it filled up<br><br>
     Goodluck
   </p>
+  <div style="position: fixed; bottom: 1%; left: 0%; background: radial-gradient(circle, #ffffff, #dddddd); border: 3px solid white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease-in-out, background 0.2s;" id="speedButton">
+    <span>&#x25B2;</span>
+  </div>
   <script>
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
@@ -27,6 +30,7 @@
     var gameOverTimer = null;
     var instructionsTimer = null;
     var laserData = null;
+    var fastSpawn = false;
 
     function adjustCanvasSize() {
       const isMobile = window.innerWidth <= 768;
@@ -324,6 +328,21 @@
     let minInterval = 1000;
     let spawnTimer;
 
+    function toggleFastSpawn(active) {
+      fastSpawn = active;
+      clearInterval(spawnTimer);
+      startSpawning();
+    }
+    document.getElementById("speedButton").addEventListener("mousedown", () => {
+      toggleFastSpawn(true);
+    });
+    document.getElementById("speedButton").addEventListener("mouseup", () => {
+      toggleFastSpawn(false);
+    });
+    document.getElementById("speedButton").addEventListener("mouseleave", () => {
+      toggleFastSpawn(false);
+    });
+
     function startSpawning() {
       spawnTimer = setInterval(() => {
         if (!gameOver) {
@@ -332,7 +351,7 @@
         spawnInterval = Math.max(spawnInterval - 10, minInterval);
         clearInterval(spawnTimer);
         startSpawning();
-      }, spawnInterval);
+      }, fastSpawn ? 500 : spawnInterval);
     }
     startSpawning();
 
