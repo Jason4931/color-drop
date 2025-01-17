@@ -151,7 +151,7 @@
                       (clickedBall.y - firstClickedBall.y) ** 2
                   );
                   if (
-                    distance / 2 <=
+                    distance / 1.5 <=
                     firstClickedBall.radius + clickedBall.radius
                   ) {
                     explodeBalls(firstClickedBall, clickedBall);
@@ -182,7 +182,7 @@
                       (clickedBall.y - firstClickedBall.y) ** 2
                   );
                   if (
-                    distance / 2 <=
+                    distance / 1.5 <=
                     firstClickedBall.radius + clickedBall.radius
                   ) {
                     explodeBalls(firstClickedBall, clickedBall);
@@ -217,7 +217,7 @@
           y: (ball1.y + ball2.y) / 2,
         };
 
-        const explosionRadius = 100;
+        const explosionRadius = 150;
 
         balls = balls.filter((ball) => {
           const distance = Math.sqrt(
