@@ -336,10 +336,19 @@
     document.getElementById("speedButton").addEventListener("mousedown", () => {
       toggleFastSpawn(true);
     });
+    document.getElementById("speedButton").addEventListener("touchstart", () => {
+      toggleFastSpawn(true);
+    });
     document.getElementById("speedButton").addEventListener("mouseup", () => {
       toggleFastSpawn(false);
     });
+    document.getElementById("speedButton").addEventListener("touchend", () => {
+      toggleFastSpawn(false);
+    });
     document.getElementById("speedButton").addEventListener("mouseleave", () => {
+      toggleFastSpawn(false);
+    });
+    document.getElementById("speedButton").addEventListener("touchmove", () => {
       toggleFastSpawn(false);
     });
 
