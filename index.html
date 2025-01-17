@@ -116,13 +116,14 @@
       const threshold = 100;
       const distance = Math.sqrt((r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2);
       
-      return distance < threshold;
+      return distance < threshold || color1 === "rgb(255, 255, 255)" || color2 === "rgb(255, 255, 255)";
     }
   
     var balls = [];
   
     function createBall(color) {
       var radius = Math.random() * (canvas.width / 20) + 15;
+      const isRainbow = Math.random() < 0.1;
       return {
         x: Math.random() * (canvas.width - 2 * radius) + radius,
         y: -30,
@@ -131,7 +132,8 @@
         velocityY: 0,
         gravity: 0.1,
         damping: 0.5,
-        color: color
+        color: isRainbow ? "rgb(255, 255, 255)" : color,
+        isRainbow: isRainbow
       };
     }
   
@@ -182,7 +184,19 @@
       ctx.strokeStyle = "white";
       ctx.lineWidth = 0.5;
       ctx.stroke();
-      ctx.fillStyle = ball.color;
+      if (ball.isRainbow) {
+        const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius);
+        gradient.addColorStop(0, "red");
+        gradient.addColorStop(0.17, "orange");
+        gradient.addColorStop(0.34, "yellow");
+        gradient.addColorStop(0.51, "green");
+        gradient.addColorStop(0.68, "blue");
+        gradient.addColorStop(0.85, "indigo");
+        gradient.addColorStop(1, "violet");
+        ctx.fillStyle = gradient;
+      } else {
+        ctx.fillStyle = ball.color;
+      }
       ctx.fill();
       if (ball === firstClickedBall) {
         ctx.lineWidth = 5;
