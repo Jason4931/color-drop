@@ -275,20 +275,22 @@
         const distanceB = Math.abs(b2 - b1);
         
         wrongStreak++;
-        if(wrongStreak == 5) {
-          wrongStreak = 0;
-          fastSpawn = true;
-          clearInterval(spawnTimer);
-          startSpawning();
-          disableFastSpawn = true;
-          clearTimeout(wrongStreakTimer);
-          wrongStreakTimer = setTimeout(() => {
-            fastSpawn = false;
+        setTimeout(() => {
+          if(wrongStreak == 5) {
+            wrongStreak = 0;
+            fastSpawn = true;
             clearInterval(spawnTimer);
             startSpawning();
-            disableFastSpawn = false;
-          }, 5000);
-        }
+            disableFastSpawn = true;
+            clearTimeout(wrongStreakTimer);
+            wrongStreakTimer = setTimeout(() => {
+              fastSpawn = false;
+              clearInterval(spawnTimer);
+              startSpawning();
+              disableFastSpawn = false;
+            }, 5000);
+          }
+        }, 100);
         
         return (
           (distanceR <= threshold && distanceG <= threshold && distanceB <= threshold) ||
