@@ -26,6 +26,7 @@
     var gameOver = false;
     var gameOverTimer = null;
     var instructionsTimer = null;
+    var laserData = null;
 
     function adjustCanvasSize() {
       const isMobile = window.innerWidth <= 768;
@@ -76,7 +77,10 @@
           firstClickedBall = clickedBall;
         } else {
           if (!cheat) {
-            if (firstClickedBall !== clickedBall && colorsMatch(firstClickedBall.color, clickedBall.color)) {
+            if (firstClickedBall !== clickedBall & colorsMatch(firstClickedBall.color, clickedBall.color)) {
+              if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
+                clearLine(firstClickedBall, clickedBall);
+              }
               const firstIndex = balls.indexOf(firstClickedBall);
               const secondIndex = closestBallIndex;
               if (firstIndex < secondIndex) {
@@ -91,6 +95,9 @@
             }
           } else {
             if (firstClickedBall !== clickedBall) {
+              if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
+                clearLine(firstClickedBall, clickedBall)
+              }
               const firstIndex = balls.indexOf(firstClickedBall);
               const secondIndex = closestBallIndex;
               if (firstIndex < secondIndex) {
@@ -108,6 +115,19 @@
         }
       }
     });
+
+    function clearLine(ball1, ball2) {
+      const y = (ball1.y + ball2.y) / 2;
+      balls = balls.filter(ball => {
+        const distanceToLine = Math.abs(ball.y - y);
+        return distanceToLine > ball.radius && ball !== ball1 && ball !== ball2;
+      });
+
+      laserData = { y, duration: 50, maxWidth: 5 };
+      
+      points += 5;
+      document.getElementById("points").textContent = "Points: " + points;
+    }
 
     function colorsMatch(color1, color2) {
       const [r1, g1, b1] = color1.match(/\d+/g).map(Number);
@@ -270,6 +290,24 @@
       if (gameOver) return;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (laserData) {
+        const currentWidth = (laserData.duration / 50) * laserData.maxWidth;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, laserData.y);
+        ctx.lineTo(canvas.width, laserData.y);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = currentWidth;
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
+
+        laserData.duration--;
+        if (laserData.duration <= 0) {
+          laserData = null;
+        }
+      }
 
       for (let i = 0; i < balls.length; i++) {
         for (let j = i + 1; j < balls.length; j++) {
