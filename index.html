@@ -1,443 +1,569 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Color Drop</title>
-</head>
-<body style="background-color: black; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow: hidden;">
-  <div id="canvasbg" style="background: linear-gradient(to bottom, black, #101010); height: 600px;">
-    <canvas id="canvas" width="500" height="600" style="border-bottom: 3px solid white; border-left: 3px solid white; border-right: 3px solid white;"></canvas>
-  </div>
-  <p id="points" style="text-align: end; color: white; user-select: none;">Points: 0</p>
-  <p id="instructions" style="transition: opacity 0.5s ease-in-out; position: absolute; top: 0px; right: -60%; color: white; user-select: none; width: 290px">
-    How to play:<br>
-    Pick 2 balls of the same color to destroy them<br>
-    Dont let it filled up<br><br>
-    Goodluck
-  </p>
-  <div style="position: fixed; bottom: 1%; left: 0%; background: radial-gradient(circle, #ffffff, #dddddd); border: 3px solid white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease-in-out, background 0.2s;" id="speedButton">
-    <span>&#x25B2;</span>
-  </div>
-  <script>
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
-    var cheat = true;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Drop</title>
+  </head>
+  <body
+    style="
+      background-color: black;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      overflow: hidden;
+    "
+  >
+    <div
+      id="canvasbg"
+      style="
+        background: linear-gradient(to bottom, black, #101010);
+        height: 600px;
+      "
+    >
+      <canvas
+        id="canvas"
+        width="500"
+        height="600"
+        style="
+          border-bottom: 3px solid white;
+          border-left: 3px solid white;
+          border-right: 3px solid white;
+        "
+      ></canvas>
+    </div>
+    <p id="points" style="text-align: end; color: white; user-select: none">
+      Points: 0
+    </p>
+    <p
+      id="instructions"
+      style="
+        transition: opacity 0.5s ease-in-out;
+        position: absolute;
+        top: 0px;
+        right: -60%;
+        color: white;
+        user-select: none;
+        width: 290px;
+      "
+    >
+      How to play:<br />
+      Pick 2 balls of the same color to destroy them<br />
+      Dont let it filled up<br /><br />
+      Goodluck
+    </p>
+    <div
+      style="
+        position: fixed;
+        bottom: 1%;
+        left: 0%;
+        background: radial-gradient(circle, #ffffff, #dddddd);
+        border: 3px solid white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s ease-in-out, background 0.2s;
+      "
+      id="speedButton"
+    >
+      <span>&#x25B2;</span>
+    </div>
+    <script>
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+      var cheat = false;
 
-    var points = 0;
-    var firstClickedBall = null;
-    var gameOver = false;
-    var gameOverTimer = null;
-    var instructionsTimer = null;
-    var laserData = null;
-    var fastSpawn = false;
-    var explosionData = false;
+      var points = 0;
+      var firstClickedBall = null;
+      var gameOver = false;
+      var gameOverTimer = null;
+      var instructionsTimer = null;
+      var laserData = null;
+      var fastSpawn = false;
+      var explosionData = false;
 
-    function adjustCanvasSize() {
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile) {
-        canvas.width = window.innerWidth * 0.4;
-        canvas.height = window.innerHeight * 0.6;
-        document.getElementById("canvasbg").style.height = canvas.height + "px";
-        document.getElementById("instructions").style.right = "1%";
-        instructionsTimer = setTimeout(() => {
-          document.getElementById("instructions").style.opacity = "0";
-        }, 10000)
-      } else {
-        canvas.width = 500;
-        canvas.height = 600;
-        document.getElementById("canvasbg").style.height = canvas.height + "px";
-        document.getElementById("instructions").style.right = "-60%";
-        document.getElementById("instructions").style.opacity = "1";
-        clearTimeout(instructionsTimer);
-      }
-    }
-    adjustCanvasSize();
-    window.addEventListener("resize", adjustCanvasSize);
-
-    canvas.addEventListener("click", (event) => {
-      if (gameOver) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-
-      let closestBallIndex = -1;
-      let minDistance = Infinity;
-
-      for (let i = 0; i < balls.length; i++) {
-        const ball = balls[i];
-        const distance = Math.sqrt((mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2);
-
-        if (distance <= ball.radius * 1.5 && distance < minDistance) {
-          minDistance = distance;
-          closestBallIndex = i;
+      function adjustCanvasSize() {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+          canvas.width = window.innerWidth * 0.4;
+          canvas.height = window.innerHeight * 0.6;
+          document.getElementById("canvasbg").style.height =
+            canvas.height + "px";
+          document.getElementById("instructions").style.right = "1%";
+          instructionsTimer = setTimeout(() => {
+            document.getElementById("instructions").style.opacity = "0";
+          }, 10000);
+        } else {
+          canvas.width = 500;
+          canvas.height = 600;
+          document.getElementById("canvasbg").style.height =
+            canvas.height + "px";
+          document.getElementById("instructions").style.right = "-60%";
+          document.getElementById("instructions").style.opacity = "1";
+          clearTimeout(instructionsTimer);
         }
       }
+      adjustCanvasSize();
+      window.addEventListener("resize", adjustCanvasSize);
 
-      if (closestBallIndex !== -1) {
-        const clickedBall = balls[closestBallIndex];
-        
-        if (firstClickedBall === null) {
-          firstClickedBall = clickedBall;
-        } else {
-          if (!cheat) {
-            if (firstClickedBall !== clickedBall & colorsMatch(firstClickedBall.color, clickedBall.color)) {
-              if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
-                const distance = Math.sqrt(
-                  (clickedBall.x - firstClickedBall.x) ** 2 +
-                  (clickedBall.y - firstClickedBall.y) ** 2
-                );
-                if (distance / 2 <= firstClickedBall.radius + clickedBall.radius) {
-                  explodeBalls(firstClickedBall, clickedBall);
-                  firstClickedBall = null;
-                  return;
-                } else {
-                  clearLine(firstClickedBall, clickedBall);
-                }
-              }
-              const firstIndex = balls.indexOf(firstClickedBall);
-              const secondIndex = closestBallIndex;
-              if (firstIndex < secondIndex) {
-                balls.splice(secondIndex, 1);
-                balls.splice(firstIndex, 1);
-              } else {
-                balls.splice(firstIndex, 1);
-                balls.splice(secondIndex, 1);
-              }
-              points++;
-              document.getElementById("points").textContent = "Points: " + points;
-            }
-          } else {
-            if (firstClickedBall !== clickedBall) {
-              if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
-                const distance = Math.sqrt(
-                  (clickedBall.x - firstClickedBall.x) ** 2 +
-                  (clickedBall.y - firstClickedBall.y) ** 2
-                );
-                if (distance / 2 <= firstClickedBall.radius + clickedBall.radius) {
-                  explodeBalls(firstClickedBall, clickedBall);
-                  firstClickedBall = null;
-                  return;
-                } else {
-                  clearLine(firstClickedBall, clickedBall);
-                }
-              }
-              const firstIndex = balls.indexOf(firstClickedBall);
-              const secondIndex = closestBallIndex;
-              if (firstIndex < secondIndex) {
-                balls.splice(secondIndex, 1);
-                balls.splice(firstIndex, 1);
-              } else {
-                balls.splice(firstIndex, 1);
-                balls.splice(secondIndex, 1);
-              }
-              points++;
-              document.getElementById("points").textContent = "Points: " + points;
-            }
+      canvas.addEventListener("click", (event) => {
+        if (gameOver) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        let closestBallIndex = -1;
+        let minDistance = Infinity;
+
+        for (let i = 0; i < balls.length; i++) {
+          const ball = balls[i];
+          const distance = Math.sqrt(
+            (mouseX - ball.x) ** 2 + (mouseY - ball.y) ** 2
+          );
+
+          if (distance <= ball.radius * 1.5 && distance < minDistance) {
+            minDistance = distance;
+            closestBallIndex = i;
           }
-          firstClickedBall = null;
         }
-      }
-    });
 
-    function explodeBalls(ball1, ball2) {
-      const explosionCenter = {
-        x: (ball1.x + ball2.x) / 2,
-        y: (ball1.y + ball2.y) / 2,
-      };
+        if (closestBallIndex !== -1) {
+          const clickedBall = balls[closestBallIndex];
 
-      const explosionRadius = 100;
-
-      balls = balls.filter((ball) => {
-        const distance = Math.sqrt(
-          (ball.x - explosionCenter.x) ** 2 + (ball.y - explosionCenter.y) ** 2
-        );
-        return distance > explosionRadius;
-      });
-
-      explosionData = {
-        x: explosionCenter.x,
-        y: explosionCenter.y,
-        radius: 0,
-        maxRadius: 100,
-        duration: 30,
-        opacity: 0.8,
-      };
-
-      points += 5;
-      document.getElementById("points").textContent = "Points: " + points;
-    }
-
-    function clearLine(ball1, ball2) {
-      const y = (ball1.y + ball2.y) / 2;
-      balls = balls.filter(ball => {
-        const distanceToLine = Math.abs(ball.y - y);
-        return distanceToLine > ball.radius && ball !== ball1 && ball !== ball2;
-      });
-
-      laserData = { y, duration: 50, maxWidth: 5 };
-      
-      points += 5;
-      document.getElementById("points").textContent = "Points: " + points;
-    }
-
-    function colorsMatch(color1, color2) {
-      const [r1, g1, b1] = color1.match(/\d+/g).map(Number);
-      const [r2, g2, b2] = color2.match(/\d+/g).map(Number);
-      
-      const threshold = 100;
-      const distance = Math.sqrt((r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2);
-      
-      return distance < threshold || color1 === "rgb(255, 255, 255)" || color2 === "rgb(255, 255, 255)";
-    }
-  
-    var balls = [];
-  
-    function createBall(color) {
-      var radius = Math.random() * (canvas.width / 20) + 15;
-      const isRainbow = Math.random() < 0.05;
-      return {
-        x: Math.random() * (canvas.width - 2 * radius) + radius,
-        y: -30,
-        radius: radius,
-        velocityX: 0,
-        velocityY: 0,
-        gravity: 0.1,
-        damping: 0.5,
-        color: isRainbow ? "rgb(255, 255, 255)" : color,
-        isRainbow: isRainbow
-      };
-    }
-  
-    function resolveCollision(ball1, ball2) {
-      const dx = ball2.x - ball1.x;
-      const dy = ball2.y - ball1.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-  
-      if (distance < ball1.radius + ball2.radius) {
-        const angle = Math.atan2(dy, dx);
-        const speed1 = (ball1.velocityX * dx + ball1.velocityY * dy) / distance;
-        const speed2 = (ball2.velocityX * dx + ball2.velocityY * dy) / distance;
-  
-        const newSpeed1 = speed2;
-        const newSpeed2 = speed1;
-  
-        ball1.velocityX += (newSpeed1 - speed1) * (dx / distance);
-        ball1.velocityY += (newSpeed1 - speed1) * (dy / distance);
-        ball2.velocityX += (newSpeed2 - speed2) * (dx / distance);
-        ball2.velocityY += (newSpeed2 - speed2) * (dy / distance);
-  
-        const overlap = ball1.radius + ball2.radius - distance;
-        const moveX = (dx / distance) * overlap / 2;
-        const moveY = (dy / distance) * overlap / 2;
-  
-        ball1.x -= moveX;
-        ball1.y -= moveY;
-        ball2.x += moveX;
-        ball2.y += moveY;
-
-        const collisionDamping = 0.9;
-        ball1.velocityX *= collisionDamping;
-        ball1.velocityY *= collisionDamping;
-        ball2.velocityX *= collisionDamping;
-        ball2.velocityY *= collisionDamping;
-
-        if (dy > 0) {
-          ball1.velocityY -= 0.1;
-        } else {
-          ball2.velocityY -= 0.1;
-        }
-      }
-    }
-  
-    function drawBall(ball) {
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
-      if (ball.isRainbow) {
-        const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius);
-        gradient.addColorStop(0, "red");
-        gradient.addColorStop(0.17, "orange");
-        gradient.addColorStop(0.34, "yellow");
-        gradient.addColorStop(0.51, "green");
-        gradient.addColorStop(0.68, "blue");
-        gradient.addColorStop(0.85, "indigo");
-        gradient.addColorStop(1, "violet");
-        ctx.fillStyle = gradient;
-      } else {
-        ctx.fillStyle = ball.color;
-      }
-      ctx.fill();
-      if (ball === firstClickedBall) {
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = darkenColor(ball.color);
-        ctx.stroke();
-      }
-      ctx.closePath();
-  
-      ball.velocityY += ball.gravity;
-      ball.y += ball.velocityY;
-      ball.x += ball.velocityX;
-  
-      if (ball.y + ball.radius >= canvas.height) {
-        ball.y = canvas.height - ball.radius;
-        ball.velocityY *= -ball.damping;
-      }
-  
-      if (ball.x - ball.radius <= 0) {
-        ball.x = ball.radius;
-        ball.velocityX *= -ball.damping;
-      }
-  
-      if (ball.x + ball.radius >= canvas.width) {
-        ball.x = canvas.width - ball.radius;
-        ball.velocityX *= -ball.damping;
-      }
-  
-      if (Math.abs(ball.velocityY) < 0.1 && ball.y + ball.radius >= canvas.height) {
-        ball.velocityY = 0;
-      }
-      if (Math.abs(ball.velocityX) < 0.1) {
-        ball.velocityX = 0;
-      }
-    }
-  
-    function darkenColor(color) {
-      const [r, g, b] = color.match(/\d+/g).map(Number);
-      const darkenFactor = 0.3;
-      return `rgb(${Math.max(0, r - r * darkenFactor)}, ${Math.max(0, g - g * darkenFactor)}, ${Math.max(0, b - b * darkenFactor)})`;
-    }
-
-    function checkGameOver() {
-      const ballsAboveCanvas = balls.filter(ball => ball.y < 0);
-      if (ballsAboveCanvas.length > 0) {
-        if (!gameOverTimer) {
-          gameOverTimer = setTimeout(() => {
-            const ballsAboveCanvas = balls.filter(ball => ball.y < 0);
-            if (ballsAboveCanvas.length > 0) {
-              gameOver = true;
-              displayGameOver();
+          if (firstClickedBall === null) {
+            firstClickedBall = clickedBall;
+          } else {
+            if (!cheat) {
+              if (
+                (firstClickedBall !== clickedBall) &
+                colorsMatch(firstClickedBall.color, clickedBall.color)
+              ) {
+                if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
+                  const distance = Math.sqrt(
+                    (clickedBall.x - firstClickedBall.x) ** 2 +
+                      (clickedBall.y - firstClickedBall.y) ** 2
+                  );
+                  if (
+                    distance / 2 <=
+                    firstClickedBall.radius + clickedBall.radius
+                  ) {
+                    explodeBalls(firstClickedBall, clickedBall);
+                    firstClickedBall = null;
+                    return;
+                  } else {
+                    clearLine(firstClickedBall, clickedBall);
+                  }
+                }
+                const firstIndex = balls.indexOf(firstClickedBall);
+                const secondIndex = closestBallIndex;
+                if (firstIndex < secondIndex) {
+                  balls.splice(secondIndex, 1);
+                  balls.splice(firstIndex, 1);
+                } else {
+                  balls.splice(firstIndex, 1);
+                  balls.splice(secondIndex, 1);
+                }
+                points++;
+                document.getElementById("points").textContent =
+                  "Points: " + points;
+              }
+            } else {
+              if (firstClickedBall !== clickedBall) {
+                if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
+                  const distance = Math.sqrt(
+                    (clickedBall.x - firstClickedBall.x) ** 2 +
+                      (clickedBall.y - firstClickedBall.y) ** 2
+                  );
+                  if (
+                    distance / 2 <=
+                    firstClickedBall.radius + clickedBall.radius
+                  ) {
+                    explodeBalls(firstClickedBall, clickedBall);
+                    firstClickedBall = null;
+                    return;
+                  } else {
+                    clearLine(firstClickedBall, clickedBall);
+                  }
+                }
+                const firstIndex = balls.indexOf(firstClickedBall);
+                const secondIndex = closestBallIndex;
+                if (firstIndex < secondIndex) {
+                  balls.splice(secondIndex, 1);
+                  balls.splice(firstIndex, 1);
+                } else {
+                  balls.splice(firstIndex, 1);
+                  balls.splice(secondIndex, 1);
+                }
+                points++;
+                document.getElementById("points").textContent =
+                  "Points: " + points;
+              }
             }
-          }, 3000);
+            firstClickedBall = null;
+          }
         }
-      } else {
-        clearTimeout(gameOverTimer);
-        gameOverTimer = null;
+      });
+
+      function explodeBalls(ball1, ball2) {
+        const explosionCenter = {
+          x: (ball1.x + ball2.x) / 2,
+          y: (ball1.y + ball2.y) / 2,
+        };
+
+        const explosionRadius = 100;
+
+        balls = balls.filter((ball) => {
+          const distance = Math.sqrt(
+            (ball.x - explosionCenter.x) ** 2 +
+              (ball.y - explosionCenter.y) ** 2
+          );
+          return distance > explosionRadius;
+        });
+
+        explosionData = {
+          x: explosionCenter.x,
+          y: explosionCenter.y,
+          radius: 0,
+          maxRadius: 100,
+          duration: 30,
+          opacity: 0.8,
+        };
+
+        points += 5;
+        document.getElementById("points").textContent = "Points: " + points;
       }
-    }
 
-    function displayGameOver() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      ctx.font = "30px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 20);
-      ctx.fillText("Points: " + points, canvas.width / 2, canvas.height / 2 + 20);
-    }
-    
-    function draw() {
-      if (gameOver) return;
+      function clearLine(ball1, ball2) {
+        const y = (ball1.y + ball2.y) / 2;
+        balls = balls.filter((ball) => {
+          const distanceToLine = Math.abs(ball.y - y);
+          return (
+            distanceToLine > ball.radius && ball !== ball1 && ball !== ball2
+          );
+        });
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        laserData = { y, duration: 50, maxWidth: 5 };
 
-      if (explosionData) {
-        const currentExplosion = explosionData;
-        const currentRadius = (currentExplosion.radius / currentExplosion.maxRadius) * currentExplosion.maxRadius;
-        const currentOpacity = currentExplosion.opacity;
+        points += 5;
+        document.getElementById("points").textContent = "Points: " + points;
+      }
 
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(currentExplosion.x, currentExplosion.y, currentRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = `rgba(255, 0, 0, ${currentOpacity})`;
-        ctx.fill();
-        ctx.closePath();
-        ctx.restore();
+      function colorsMatch(color1, color2) {
+        const [r1, g1, b1] = color1.match(/\d+/g).map(Number);
+        const [r2, g2, b2] = color2.match(/\d+/g).map(Number);
 
-        currentExplosion.radius += (currentExplosion.maxRadius / currentExplosion.duration);
-        currentExplosion.opacity -= (1 / currentExplosion.duration);
+        const threshold = 100;
+        const distance = Math.sqrt(
+          (r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2
+        );
 
-        if (currentExplosion.opacity <= 0) {
-          explosionData = null;
+        return (
+          distance < threshold ||
+          color1 === "rgb(255, 255, 255)" ||
+          color2 === "rgb(255, 255, 255)"
+        );
+      }
+
+      var balls = [];
+
+      function createBall(color) {
+        var radius = Math.random() * (canvas.width / 20) + 15;
+        const isRainbow = Math.random() < 0.05;
+        return {
+          x: Math.random() * (canvas.width - 2 * radius) + radius,
+          y: -30,
+          radius: radius,
+          velocityX: 0,
+          velocityY: 0,
+          gravity: 0.1,
+          damping: 0.5,
+          color: isRainbow ? "rgb(255, 255, 255)" : color,
+          isRainbow: isRainbow,
+        };
+      }
+
+      function resolveCollision(ball1, ball2) {
+        const dx = ball2.x - ball1.x;
+        const dy = ball2.y - ball1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < ball1.radius + ball2.radius) {
+          const angle = Math.atan2(dy, dx);
+          const speed1 =
+            (ball1.velocityX * dx + ball1.velocityY * dy) / distance;
+          const speed2 =
+            (ball2.velocityX * dx + ball2.velocityY * dy) / distance;
+
+          const newSpeed1 = speed2;
+          const newSpeed2 = speed1;
+
+          ball1.velocityX += (newSpeed1 - speed1) * (dx / distance);
+          ball1.velocityY += (newSpeed1 - speed1) * (dy / distance);
+          ball2.velocityX += (newSpeed2 - speed2) * (dx / distance);
+          ball2.velocityY += (newSpeed2 - speed2) * (dy / distance);
+
+          const overlap = ball1.radius + ball2.radius - distance;
+          const moveX = ((dx / distance) * overlap) / 2;
+          const moveY = ((dy / distance) * overlap) / 2;
+
+          ball1.x -= moveX;
+          ball1.y -= moveY;
+          ball2.x += moveX;
+          ball2.y += moveY;
+
+          const collisionDamping = 0.9;
+          ball1.velocityX *= collisionDamping;
+          ball1.velocityY *= collisionDamping;
+          ball2.velocityX *= collisionDamping;
+          ball2.velocityY *= collisionDamping;
+
+          if (dy > 0) {
+            ball1.velocityY -= 0.1;
+          } else {
+            ball2.velocityY -= 0.1;
+          }
         }
       }
-      if (laserData) {
-        const currentWidth = (laserData.duration / 50) * laserData.maxWidth;
-        ctx.save();
+
+      function drawBall(ball) {
         ctx.beginPath();
-        ctx.moveTo(0, laserData.y);
-        ctx.lineTo(canvas.width, laserData.y);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.lineWidth = currentWidth;
+        ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 0.5;
         ctx.stroke();
+        if (ball.isRainbow) {
+          const gradient = ctx.createRadialGradient(
+            ball.x,
+            ball.y,
+            0,
+            ball.x,
+            ball.y,
+            ball.radius
+          );
+          gradient.addColorStop(0, "red");
+          gradient.addColorStop(0.17, "orange");
+          gradient.addColorStop(0.34, "yellow");
+          gradient.addColorStop(0.51, "green");
+          gradient.addColorStop(0.68, "blue");
+          gradient.addColorStop(0.85, "indigo");
+          gradient.addColorStop(1, "violet");
+          ctx.fillStyle = gradient;
+        } else {
+          ctx.fillStyle = ball.color;
+        }
+        ctx.fill();
+        if (ball === firstClickedBall) {
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = darkenColor(ball.color);
+          ctx.stroke();
+        }
         ctx.closePath();
-        ctx.restore();
 
-        laserData.duration--;
-        if (laserData.duration <= 0) {
-          laserData = null;
+        ball.velocityY += ball.gravity;
+        ball.y += ball.velocityY;
+        ball.x += ball.velocityX;
+
+        if (ball.y + ball.radius >= canvas.height) {
+          ball.y = canvas.height - ball.radius;
+          ball.velocityY *= -ball.damping;
+        }
+
+        if (ball.x - ball.radius <= 0) {
+          ball.x = ball.radius;
+          ball.velocityX *= -ball.damping;
+        }
+
+        if (ball.x + ball.radius >= canvas.width) {
+          ball.x = canvas.width - ball.radius;
+          ball.velocityX *= -ball.damping;
+        }
+
+        if (
+          Math.abs(ball.velocityY) < 0.1 &&
+          ball.y + ball.radius >= canvas.height
+        ) {
+          ball.velocityY = 0;
+        }
+        if (Math.abs(ball.velocityX) < 0.1) {
+          ball.velocityX = 0;
         }
       }
 
-      for (let i = 0; i < balls.length; i++) {
-        for (let j = i + 1; j < balls.length; j++) {
-          resolveCollision(balls[i], balls[j]);
+      function darkenColor(color) {
+        const [r, g, b] = color.match(/\d+/g).map(Number);
+        const darkenFactor = 0.3;
+        return `rgb(${Math.max(0, r - r * darkenFactor)}, ${Math.max(
+          0,
+          g - g * darkenFactor
+        )}, ${Math.max(0, b - b * darkenFactor)})`;
+      }
+
+      function checkGameOver() {
+        const ballsAboveCanvas = balls.filter((ball) => ball.y < 0);
+        if (ballsAboveCanvas.length > 0) {
+          if (!gameOverTimer) {
+            gameOverTimer = setTimeout(() => {
+              const ballsAboveCanvas = balls.filter((ball) => ball.y < 0);
+              if (ballsAboveCanvas.length > 0) {
+                gameOver = true;
+                displayGameOver();
+              }
+            }, 3000);
+          }
+        } else {
+          clearTimeout(gameOverTimer);
+          gameOverTimer = null;
         }
       }
 
-      balls.forEach(drawBall);
-      checkGameOver();
-      requestAnimationFrame(draw);
-    }
-  
-    let spawnInterval = 3000;
-    let minInterval = 1000;
-    let spawnTimer;
+      function displayGameOver() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(
+          "Points: " + points,
+          canvas.width / 2,
+          canvas.height / 2 + 20
+        );
+      }
 
-    function toggleFastSpawn(active) {
-      fastSpawn = active;
-      clearInterval(spawnTimer);
-      startSpawning();
-    }
-    document.getElementById("speedButton").addEventListener("mousedown", () => {
-      toggleFastSpawn(true);
-    });
-    document.getElementById("speedButton").addEventListener("touchstart", () => {
-      toggleFastSpawn(true);
-    });
-    document.getElementById("speedButton").addEventListener("mouseup", () => {
-      toggleFastSpawn(false);
-    });
-    document.getElementById("speedButton").addEventListener("touchend", () => {
-      toggleFastSpawn(false);
-    });
-    document.getElementById("speedButton").addEventListener("mouseleave", () => {
-      toggleFastSpawn(false);
-    });
-    document.getElementById("speedButton").addEventListener("touchmove", () => {
-      toggleFastSpawn(false);
-    });
+      function draw() {
+        if (gameOver) return;
 
-    function startSpawning() {
-      spawnTimer = setInterval(() => {
-        if (!gameOver) {
-          balls.push(createBall(`rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`));
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (explosionData) {
+          const currentExplosion = explosionData;
+          const currentRadius =
+            (currentExplosion.radius / currentExplosion.maxRadius) *
+            currentExplosion.maxRadius;
+          const currentOpacity = currentExplosion.opacity;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(
+            currentExplosion.x,
+            currentExplosion.y,
+            currentRadius,
+            0,
+            2 * Math.PI
+          );
+          ctx.fillStyle = `rgba(255, 0, 0, ${currentOpacity})`;
+          ctx.fill();
+          ctx.closePath();
+          ctx.restore();
+
+          currentExplosion.radius +=
+            currentExplosion.maxRadius / currentExplosion.duration;
+          currentExplosion.opacity -= 1 / currentExplosion.duration;
+
+          if (currentExplosion.opacity <= 0) {
+            explosionData = null;
+          }
         }
-        spawnInterval = Math.max(spawnInterval - 10, minInterval);
+        if (laserData) {
+          const currentWidth = (laserData.duration / 50) * laserData.maxWidth;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(0, laserData.y);
+          ctx.lineTo(canvas.width, laserData.y);
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+          ctx.lineWidth = currentWidth;
+          ctx.stroke();
+          ctx.closePath();
+          ctx.restore();
+
+          laserData.duration--;
+          if (laserData.duration <= 0) {
+            laserData = null;
+          }
+        }
+
+        for (let i = 0; i < balls.length; i++) {
+          for (let j = i + 1; j < balls.length; j++) {
+            resolveCollision(balls[i], balls[j]);
+          }
+        }
+
+        balls.forEach(drawBall);
+        checkGameOver();
+        requestAnimationFrame(draw);
+      }
+
+      let spawnInterval = 3000;
+      let minInterval = 1000;
+      let spawnTimer;
+
+      function toggleFastSpawn(active) {
+        fastSpawn = active;
         clearInterval(spawnTimer);
         startSpawning();
-      }, fastSpawn ? 500 : spawnInterval);
-    }
-    startSpawning();
+      }
+      document
+        .getElementById("speedButton")
+        .addEventListener("mousedown", () => {
+          toggleFastSpawn(true);
+        });
+      document
+        .getElementById("speedButton")
+        .addEventListener("touchstart", () => {
+          toggleFastSpawn(true);
+        });
+      document.getElementById("speedButton").addEventListener("mouseup", () => {
+        toggleFastSpawn(false);
+      });
+      document
+        .getElementById("speedButton")
+        .addEventListener("touchend", () => {
+          toggleFastSpawn(false);
+        });
+      document
+        .getElementById("speedButton")
+        .addEventListener("mouseleave", () => {
+          toggleFastSpawn(false);
+        });
+      document
+        .getElementById("speedButton")
+        .addEventListener("touchmove", () => {
+          toggleFastSpawn(false);
+        });
 
-    setTimeout(() => {
-      minInterval = 500;
-    }, 601000)
-  
-    draw();
-  </script>
-</body>
+      function startSpawning() {
+        spawnTimer = setInterval(
+          () => {
+            if (!gameOver) {
+              balls.push(
+                createBall(
+                  `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(
+                    Math.random() * 255
+                  )}, ${Math.floor(Math.random() * 255)})`
+                )
+              );
+            }
+            spawnInterval = Math.max(spawnInterval - 10, minInterval);
+            clearInterval(spawnTimer);
+            startSpawning();
+          },
+          fastSpawn ? 500 : spawnInterval
+        );
+      }
+      startSpawning();
+
+      setTimeout(() => {
+        minInterval = 500;
+      }, 601000);
+
+      draw();
+    </script>
+  </body>
 </html>
