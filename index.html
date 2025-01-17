@@ -103,7 +103,7 @@
           instructionsTimer = setTimeout(() => {
             document.getElementById("instructions").style.opacity = "0";
             setTimeout(() => {
-              document.getElementById("instructions").style.right = "-60%";
+              document.getElementById("instructions").style.right = "-100vh";
             })
           }, 10000);
         } else {
@@ -229,7 +229,7 @@
           y: (ball1.y + ball2.y) / 2,
         };
 
-        const explosionRadius = 150;
+        const explosionRadius = 125;
 
         balls = balls.filter((ball) => {
           const distance = Math.sqrt(
