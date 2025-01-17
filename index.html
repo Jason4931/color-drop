@@ -260,12 +260,12 @@
         const [r2, g2, b2] = color2.match(/\d+/g).map(Number);
 
         const threshold = 100;
-        const distance = Math.sqrt(
-          (r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2
-        );
-
+        const distanceR = Math.abs(r2 - r1);
+        const distanceG = Math.abs(g2 - g1);
+        const distanceB = Math.abs(b2 - b1);
+        
         return (
-          distance < threshold ||
+          (distanceR <= threshold && distanceG <= threshold && distanceB <= threshold) ||
           color1 === "rgb(255, 255, 255)" ||
           color2 === "rgb(255, 255, 255)"
         );
