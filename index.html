@@ -527,7 +527,7 @@
           const progress = frame / maxFrames;
 
           ctx.beginPath();
-          ctx.arc(ball.x, ball.y, ball.radius + progress * 10, 0, 2 * Math.PI);
+          ctx.arc(ball.x, ball.y, ball.radius + progress, 0, 2 * Math.PI);
           ctx.strokeStyle = `rgba(255, 0, 0, ${1 - progress})`;
           ctx.lineWidth = 5;
           ctx.stroke();
