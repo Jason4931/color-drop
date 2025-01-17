@@ -22,7 +22,7 @@
   <script>
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-    var cheat = false;
+    var cheat = true;
 
     var points = 0;
     var firstClickedBall = null;
@@ -31,6 +31,7 @@
     var instructionsTimer = null;
     var laserData = null;
     var fastSpawn = false;
+    var explosionData = false;
 
     function adjustCanvasSize() {
       const isMobile = window.innerWidth <= 768;
@@ -83,7 +84,17 @@
           if (!cheat) {
             if (firstClickedBall !== clickedBall & colorsMatch(firstClickedBall.color, clickedBall.color)) {
               if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
-                clearLine(firstClickedBall, clickedBall);
+                const distance = Math.sqrt(
+                  (clickedBall.x - firstClickedBall.x) ** 2 +
+                  (clickedBall.y - firstClickedBall.y) ** 2
+                );
+                if (distance / 2 <= firstClickedBall.radius + clickedBall.radius) {
+                  explodeBalls(firstClickedBall, clickedBall);
+                  firstClickedBall = null;
+                  return;
+                } else {
+                  clearLine(firstClickedBall, clickedBall);
+                }
               }
               const firstIndex = balls.indexOf(firstClickedBall);
               const secondIndex = closestBallIndex;
@@ -100,7 +111,17 @@
           } else {
             if (firstClickedBall !== clickedBall) {
               if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
-                clearLine(firstClickedBall, clickedBall)
+                const distance = Math.sqrt(
+                  (clickedBall.x - firstClickedBall.x) ** 2 +
+                  (clickedBall.y - firstClickedBall.y) ** 2
+                );
+                if (distance / 2 <= firstClickedBall.radius + clickedBall.radius) {
+                  explodeBalls(firstClickedBall, clickedBall);
+                  firstClickedBall = null;
+                  return;
+                } else {
+                  clearLine(firstClickedBall, clickedBall);
+                }
               }
               const firstIndex = balls.indexOf(firstClickedBall);
               const secondIndex = closestBallIndex;
@@ -119,6 +140,34 @@
         }
       }
     });
+
+    function explodeBalls(ball1, ball2) {
+      const explosionCenter = {
+        x: (ball1.x + ball2.x) / 2,
+        y: (ball1.y + ball2.y) / 2,
+      };
+
+      const explosionRadius = 100;
+
+      balls = balls.filter((ball) => {
+        const distance = Math.sqrt(
+          (ball.x - explosionCenter.x) ** 2 + (ball.y - explosionCenter.y) ** 2
+        );
+        return distance > explosionRadius;
+      });
+
+      explosionData = {
+        x: explosionCenter.x,
+        y: explosionCenter.y,
+        radius: 0,
+        maxRadius: 100,
+        duration: 30,
+        opacity: 0.8,
+      };
+
+      points += 5;
+      document.getElementById("points").textContent = "Points: " + points;
+    }
 
     function clearLine(ball1, ball2) {
       const y = (ball1.y + ball2.y) / 2;
@@ -295,6 +344,26 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      if (explosionData) {
+        const currentExplosion = explosionData;
+        const currentRadius = (currentExplosion.radius / currentExplosion.maxRadius) * currentExplosion.maxRadius;
+        const currentOpacity = currentExplosion.opacity;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(currentExplosion.x, currentExplosion.y, currentRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(255, 0, 0, ${currentOpacity})`;
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+
+        currentExplosion.radius += (currentExplosion.maxRadius / currentExplosion.duration);
+        currentExplosion.opacity -= (1 / currentExplosion.duration);
+
+        if (currentExplosion.opacity <= 0) {
+          explosionData = null;
+        }
+      }
       if (laserData) {
         const currentWidth = (laserData.duration / 50) * laserData.maxWidth;
         ctx.save();
