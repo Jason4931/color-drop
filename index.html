@@ -123,7 +123,7 @@
   
     function createBall(color) {
       var radius = Math.random() * (canvas.width / 20) + 15;
-      const isRainbow = Math.random() < 0.1;
+      const isRainbow = Math.random() < 0.05;
       return {
         x: Math.random() * (canvas.width - 2 * radius) + radius,
         y: -30,
