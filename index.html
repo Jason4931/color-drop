@@ -144,7 +144,11 @@
           if (firstClickedBall === null) {
             firstClickedBall = clickedBall;
           } else {
-            secondClickedBall = clickedBall;
+            secondClickedBall = {
+              ball: clickedBall,
+              frame: 0,
+              maxFrames: 20,
+            };
             if (!cheat) {
               if (
                 (firstClickedBall !== clickedBall) &
@@ -386,30 +390,6 @@
           ctx.strokeStyle = darkenColor(ball.color);
           ctx.stroke();
         }
-        if (ball === secondClickedBall) {
-          const borderSteps = 5;
-          const initialWidth = 5;
-          const stepDuration = 200;
-
-          let step = 0;
-
-          function animateBorder() {
-            if (step < borderSteps) {
-              ctx.lineWidth = initialWidth - step;
-              ctx.strokeStyle = "red";
-              ctx.stroke();
-              step++;
-              setTimeout(animateBorder, stepDuration);
-            } else {
-              secondClickedBall = null;
-            }
-          }
-
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = initialWidth;
-          ctx.stroke();
-          animateBorder();
-        }
         ctx.closePath();
 
         ball.velocityY += ball.gravity;
@@ -542,6 +522,23 @@
         }
 
         balls.forEach(drawBall);
+        if (secondClickedBall.ball) {
+          const { ball, frame, maxFrames } = secondClickedBall;
+          const progress = frame / maxFrames;
+
+          ctx.beginPath();
+          ctx.arc(ball.x, ball.y, ball.radius + progress * 10, 0, 2 * Math.PI);
+          ctx.strokeStyle = `rgba(255, 0, 0, ${1 - progress})`;
+          ctx.lineWidth = 5;
+          ctx.stroke();
+          ctx.closePath();
+
+          secondClickedBall.frame++;
+
+          if (secondClickedBall.frame >= maxFrames) {
+            secondClickedBall.ball = null;
+          }
+        }
         checkGameOver();
         requestAnimationFrame(draw);
       }
