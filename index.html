@@ -82,12 +82,15 @@
       var points = 0;
       var firstClickedBall = null;
       var secondClickedBall = null;
+      var wrongStreak = 0;
       var gameOver = false;
       var gameOverTimer = null;
       var instructionsTimer = null;
+      var wrongStreakTimer = null;
       var laserData = null;
-      var fastSpawn = false;
       var explosionData = false;
+      var fastSpawn = false;
+      var disableFastSpawn = false;
 
       function adjustCanvasSize() {
         const isMobile = window.innerWidth <= 768;
@@ -147,6 +150,7 @@
                 (firstClickedBall !== clickedBall) &
                 colorsMatch(firstClickedBall.color, clickedBall.color)
               ) {
+                wrongStreak = 0;
                 if (firstClickedBall.isRainbow && clickedBall.isRainbow) {
                   const distance = Math.sqrt(
                     (clickedBall.x - firstClickedBall.x) ** 2 +
@@ -265,6 +269,22 @@
         const distanceR = Math.abs(r2 - r1);
         const distanceG = Math.abs(g2 - g1);
         const distanceB = Math.abs(b2 - b1);
+        
+        wrongStreak++;
+        if(wrongStreak == 3) {
+          wrongStreak = 0;
+          fastSpawn = true;
+          clearInterval(spawnTimer);
+          startSpawning();
+          disableFastSpawn = true;
+          clearTimeout(wrongStreakTimer);
+          wrongStreakTimer = setTimeout(() => {
+            fastSpawn = false;
+            clearInterval(spawnTimer);
+            startSpawning();
+            disableFastSpawn = false;
+          }, 5000);
+        }
         
         return (
           (distanceR <= threshold && distanceG <= threshold && distanceB <= threshold) ||
@@ -515,9 +535,11 @@
       let spawnTimer;
 
       function toggleFastSpawn(active) {
-        fastSpawn = active;
-        clearInterval(spawnTimer);
-        startSpawning();
+        if (!disableFastSpawn) {
+          fastSpawn = active;
+          clearInterval(spawnTimer);
+          startSpawning();
+        }
       }
       document
         .getElementById("speedButton")
